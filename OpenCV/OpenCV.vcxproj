@@ -71,8 +71,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\Users\Josh\Documents\OpenCV\opencv\build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Users\Josh\Documents\OpenCV\opencv\build\x64\vc15\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Users\Josh\Documents\GitHub\OpenCVDirs\opencv_builds\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Users\Josh\Documents\GitHub\OpenCVDirs\opencv_builds\install\x64\vc17\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -113,8 +113,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(OPENCV_DIR)\lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>$(CoreLibraryDependencies);opencv_core460d.lib;opencv_aruco460d.lib;opencv_imgproc460d.lib;opencv_highgui460d.lib;opencv_video460d.lib;opencv_imgcodecs460d.lib;opencv_calib3d460d.lib;opencv_ccalib460d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OPENCV_DIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(CoreLibraryDependencies);opencv_core460d.lib;opencv_aruco460d.lib;opencv_imgproc460d.lib;opencv_highgui460d.lib;opencv_video460d.lib;opencv_imgcodecs460d.lib;opencv_calib3d460d.lib;opencv_ccalib460d.lib;opencv_videoio460d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
