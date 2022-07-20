@@ -5,6 +5,8 @@ VisualStudioVersion = 17.2.32616.157
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenCV", "OpenCV\OpenCV.vcxproj", "{9480223C-1BCC-4744-8635-B2B125C42E5E}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Tray", "Tray\Tray.vcxproj", "{E38AD069-9F83-4A16-A206-AB240C43BE68}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -21,6 +23,14 @@ Global
 		{9480223C-1BCC-4744-8635-B2B125C42E5E}.Release|x64.Build.0 = Release|x64
 		{9480223C-1BCC-4744-8635-B2B125C42E5E}.Release|x86.ActiveCfg = Release|Win32
 		{9480223C-1BCC-4744-8635-B2B125C42E5E}.Release|x86.Build.0 = Release|Win32
+		{E38AD069-9F83-4A16-A206-AB240C43BE68}.Debug|x64.ActiveCfg = Debug|x64
+		{E38AD069-9F83-4A16-A206-AB240C43BE68}.Debug|x64.Build.0 = Debug|x64
+		{E38AD069-9F83-4A16-A206-AB240C43BE68}.Debug|x86.ActiveCfg = Debug|Win32
+		{E38AD069-9F83-4A16-A206-AB240C43BE68}.Debug|x86.Build.0 = Debug|Win32
+		{E38AD069-9F83-4A16-A206-AB240C43BE68}.Release|x64.ActiveCfg = Release|x64
+		{E38AD069-9F83-4A16-A206-AB240C43BE68}.Release|x64.Build.0 = Release|x64
+		{E38AD069-9F83-4A16-A206-AB240C43BE68}.Release|x86.ActiveCfg = Release|Win32
+		{E38AD069-9F83-4A16-A206-AB240C43BE68}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
