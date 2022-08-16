@@ -8,6 +8,8 @@ private:
 	cv::Mat imgRed;
 
 public:
+	static std::vector<double> realPosition(int x, int y);
+
 	static void onMouse(int event, int x, int y, int flags, void* param);
 
 	void maskWindows(const cv::Mat& inputBGRimage);
