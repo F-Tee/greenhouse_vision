@@ -45,26 +45,65 @@ std::vector<double> Vision::realPosition(int x, int y) {
 	return coordinates;
 }
 
-void Vision::onMouse(int event, int x, int y, int flags, void* param)
-{
-	if (event != EVENT_LBUTTONDOWN)
+/*
+void Vision::dotDetection(Tray tray, cv::Mat image, cv::Mat& input) {
+	Mat originalImage = input.clone();
+	Moments m = moments(image, true);
+	Point p(m.m10 / m.m00, m.m01 / m.m00);
+	std::vector<double> coordinates = realPosition(p.x, p.y);
+	tray.setCoordinates(coordinates);
+	tray.printCoordinates();
+
+	// Dot display
+	namedWindow("Detection Dot Centre", WINDOW_NORMAL);
+	circle(originalImage, p, 5, Scalar(0, 255, 0), -1);
+	imshow("Detection Dot Centre", originalImage);
+	resizeWindow("Detection Dot Centre", 1600, 800);
+	waitKey(0);
+	destroyWindow("Detection Dot Centre");
+}
+*/
+
+void Vision::dotDetection(Tray tray, cv::Mat image) {
+	Mat cannyOutput;
+	// Canny edge detection
+	Canny(image, cannyOutput, 50, 150, 3);
+	// Find contours
+	std::vector<std::vector<Point>> contours;
+	std::vector<Vec4i> hierarchy;
+	findContours(cannyOutput, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
+	// get the moments
+	std::vector<Moments> mu(contours.size());
+	for (int i = 0; i < contours.size(); i++)
 	{
-		return;
+		mu[i] = moments(contours[i], false);
 	}
-
-	std::cout << std::endl;
-	std::cout << "Camera position:" << std::endl;
-	std::cout << "x: " << x << std::endl;
-	std::cout << "y: " << y << std::endl;
-
-	Tray* pThis = (Tray*)param;
-	std::vector<double> coordinates = realPosition(x, y);
-	pThis->setCoordinates(coordinates);
-	pThis->printCoordinates();
-	return;
+	// get the centroid of figures.
+	std::vector<Point2f> mc(contours.size());
+	for (int i = 0; i < contours.size(); i++)
+	{
+		mc[i] = Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
+	}
+	// draw contours
+	Mat drawing(cannyOutput.size(), CV_8UC3, Scalar(255, 255, 255));
+	for (int i = 0; i < contours.size(); i++)
+	{
+		Scalar colour = Scalar(167, 151, 0); // B G R values
+		Scalar colourCentre = Scalar(0, 0, 255);
+		double area = contourArea(contours.at(i));
+		if (area > 20) {
+			drawContours(drawing, contours, i, colour, 2, 8, hierarchy, 0, Point());
+			circle(drawing, mc[i], 4, colourCentre, -1, 8, 0);
+		}
+	}
+	// show the resultant image
+	namedWindow("Contours", WINDOW_NORMAL);
+	imshow("Contours", drawing);
+	resizeWindow("Contours", 1600, 800);
+	waitKey(0);
 }
 
-void Vision::maskWindows(const Mat& inputBGRimage) {
+void Vision::maskWindowsContour(const Mat& inputBGRimage) {
 	Mat input = inputBGRimage.clone();
 	Mat imageHSV;
 	Mat imgRed1, imgRed2;
@@ -78,50 +117,39 @@ void Vision::maskWindows(const Mat& inputBGRimage) {
 	// Converts image from BGR to HSV
 	cvtColor(input, imageHSV, COLOR_BGR2HSV);
 
-	// Detects red colour
+	// Red Mask
 	inRange(imageHSV, Scalar(0, 70, 50), Scalar(10, 255, 255), imgRed1);
 	inRange(imageHSV, Scalar(170, 70, 50), Scalar(180, 255, 255), imgRed2);
 	imgRed = imgRed1 | imgRed2;
-	namedWindow("Red Tray Detection", WINDOW_NORMAL);
-	std::cout << "Red Tray Detection" << std::endl;
-	while (trayRed.getInitialised() != true) {
-		imshow("Red Tray Detection", imgRed);
-		resizeWindow("Red Tray Detection", 1600, 800);
-		setMouseCallback("Red Tray Detection", onMouse, &trayRed);
-		waitKey(1);
-	}
-	destroyWindow("Red Tray Detection");
+	dotDetection(trayRed, imgRed);
 
-	// Detects yellow colour
+	/*
+// Image display
+namedWindow("Red Mask", WINDOW_NORMAL);
+imshow("Red Mask", imgRedBlur);
+resizeWindow("Red Mask", 1600, 800);
+waitKey(0);
+std::cout << "Red Tray Detection" << std::endl;
+// Dot detection using blurred mask
+// dotDetection(trayRed, imgRedBlur, input);
+*/
+
+// Detects yellow colour
 	inRange(imageHSV, Scalar(20, 100, 100), Scalar(30, 255, 255), imgYellow);
-	namedWindow("Yellow Tray Detection", WINDOW_NORMAL);
-	std::cout << "Yellow Tray Detection" << std::endl;
-	while (trayYellow.getInitialised() != true) {
-		imshow("Yellow Tray Detection", imgYellow);
-		resizeWindow("Yellow Tray Detection", 1600, 800);
-		setMouseCallback("Yellow Tray Detection", onMouse, &trayYellow);
-		waitKey(1);
-	}
-	destroyWindow("Yellow Tray Detection");
+	dotDetection(trayYellow, imgYellow);
+
 
 	// Detects blue colour
 	inRange(imageHSV, Scalar(100, 130, 130), Scalar(105, 255, 255), imgBlue);
-	std::cout << "Blue Tray Detection" << std::endl;
-	namedWindow("Blue Tray Detection", WINDOW_NORMAL);
-	while (trayBlue.getInitialised() != true) {
-		imshow("Blue Tray Detection", imgBlue);
-		resizeWindow("Blue Tray Detection", 1600, 800);
-		setMouseCallback("Blue Tray Detection", onMouse, &trayBlue);
-		waitKey(1);
-	}
-	destroyWindow("Blue Tray Detection");
+	dotDetection(trayBlue, imgBlue);
+
 }
 
 void Vision::trayDetection(std::string filename) {
 	Mat image = imread(filename, IMREAD_COLOR);
 
-	maskWindows(image);
-
+	// maskWindows(image);
+	maskWindowsContour(image);
 }
 
 int main()
