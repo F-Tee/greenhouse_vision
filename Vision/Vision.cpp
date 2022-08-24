@@ -28,6 +28,8 @@ const double cameraHeight = 22.5;
 
 static Mat imgRed;
 
+std::vector<Tray> trays;
+
 std::vector<double> Vision::realPosition(int x, int y) {
 	double xFov = 2 * (atan(xDimensionTray / (2 * fx)));
 	double yFov = 2 * (atan(yDimensionTray / (2 * fy)));
@@ -45,65 +47,43 @@ std::vector<double> Vision::realPosition(int x, int y) {
 	return coordinates;
 }
 
-/*
-void Vision::dotDetection(Tray tray, cv::Mat image, cv::Mat& input) {
-	Mat originalImage = input.clone();
-	Moments m = moments(image, true);
-	Point p(m.m10 / m.m00, m.m01 / m.m00);
-	std::vector<double> coordinates = realPosition(p.x, p.y);
-	tray.setCoordinates(coordinates);
-	tray.printCoordinates();
-
-	// Dot display
-	namedWindow("Detection Dot Centre", WINDOW_NORMAL);
-	circle(originalImage, p, 5, Scalar(0, 255, 0), -1);
-	imshow("Detection Dot Centre", originalImage);
-	resizeWindow("Detection Dot Centre", 1600, 800);
-	waitKey(0);
-	destroyWindow("Detection Dot Centre");
-}
-*/
-
 void Vision::dotDetection(Tray tray, cv::Mat image) {
 	Mat cannyOutput;
 	// Canny edge detection
 	Canny(image, cannyOutput, 50, 150, 3);
+	// Gaussian blur
+	Mat blur;
+	GaussianBlur(cannyOutput, blur, Size(3, 3), 0);
 	// Find contours
 	std::vector<std::vector<Point>> contours;
 	std::vector<Vec4i> hierarchy;
-	findContours(cannyOutput, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
-	// get the moments
-	std::vector<Moments> mu(contours.size());
-	for (int i = 0; i < contours.size(); i++)
-	{
-		mu[i] = moments(contours[i], false);
-	}
-	// get the centroid of figures.
-	std::vector<Point2f> mc(contours.size());
-	for (int i = 0; i < contours.size(); i++)
-	{
-		mc[i] = Point2f(mu[i].m10 / mu[i].m00, mu[i].m01 / mu[i].m00);
-	}
-	// draw contours
-	Mat drawing(cannyOutput.size(), CV_8UC3, Scalar(255, 255, 255));
-	for (int i = 0; i < contours.size(); i++)
-	{
-		Scalar colour = Scalar(167, 151, 0); // B G R values
-		Scalar colourCentre = Scalar(0, 0, 255);
-		double area = contourArea(contours.at(i));
-		if (area > 20) {
-			drawContours(drawing, contours, i, colour, 2, 8, hierarchy, 0, Point());
-			circle(drawing, mc[i], 4, colourCentre, -1, 8, 0);
-		}
-	}
-	// show the resultant image
+	findContours(blur, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0));
+	// Sort contours
+	sort(contours.begin(), contours.end(), [](const std::vector<Point>& c1, const std::vector<Point>& c2) {
+		return contourArea(c1, false) < contourArea(c2, false);
+		});
+	Mat drawing(blur.size(), CV_8UC3, Scalar(255, 255, 255));
+	Scalar colour = Scalar(167, 151, 0);
+	Scalar colourCentre = Scalar(0, 0, 255);
+
+	drawContours(drawing, contours, (contours.size() - 1), colour, 2, 8, hierarchy, 0, Point());
+	Moments m = moments(contours[contours.size() - 1], true);
+	Point p(m.m10 / m.m00, m.m01 / m.m00);
+	circle(drawing, p, 5, colourCentre, -1);
+	// Create tray object and add to trays vector
+	std::vector<double> coordinates = realPosition(p.x, p.y);
+	Tray trayObj;
+	trayObj.setCoordinates(coordinates);
+	trayObj.printCoordinates();
+	trays.push_back(trayObj);
+	// Show the image
 	namedWindow("Contours", WINDOW_NORMAL);
 	imshow("Contours", drawing);
 	resizeWindow("Contours", 1600, 800);
 	waitKey(0);
 }
 
-void Vision::maskWindowsContour(const Mat& inputBGRimage) {
+void Vision::maskContours(const Mat& inputBGRimage) {
 	Mat input = inputBGRimage.clone();
 	Mat imageHSV;
 	Mat imgRed1, imgRed2;
@@ -117,24 +97,13 @@ void Vision::maskWindowsContour(const Mat& inputBGRimage) {
 	// Converts image from BGR to HSV
 	cvtColor(input, imageHSV, COLOR_BGR2HSV);
 
-	// Red Mask
+	// Detects red colour
 	inRange(imageHSV, Scalar(0, 70, 50), Scalar(10, 255, 255), imgRed1);
 	inRange(imageHSV, Scalar(170, 70, 50), Scalar(180, 255, 255), imgRed2);
 	imgRed = imgRed1 | imgRed2;
 	dotDetection(trayRed, imgRed);
 
-	/*
-// Image display
-namedWindow("Red Mask", WINDOW_NORMAL);
-imshow("Red Mask", imgRedBlur);
-resizeWindow("Red Mask", 1600, 800);
-waitKey(0);
-std::cout << "Red Tray Detection" << std::endl;
-// Dot detection using blurred mask
-// dotDetection(trayRed, imgRedBlur, input);
-*/
-
-// Detects yellow colour
+	// Detects yellow colour
 	inRange(imageHSV, Scalar(20, 100, 100), Scalar(30, 255, 255), imgYellow);
 	dotDetection(trayYellow, imgYellow);
 
@@ -149,7 +118,7 @@ void Vision::trayDetection(std::string filename) {
 	Mat image = imread(filename, IMREAD_COLOR);
 
 	// maskWindows(image);
-	maskWindowsContour(image);
+	maskContours(image);
 }
 
 int main()

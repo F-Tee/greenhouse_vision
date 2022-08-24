@@ -11,13 +11,11 @@ private:
 public:
 	static std::vector<double> realPosition(int x, int y);
 
-	// void dotDetection(Tray tray, cv::Mat image, cv::Mat& input);
+	bool compareContourAreas(std::vector<cv::Point> contour1, std::vector<cv::Point> contour2);
 
 	void dotDetection(Tray tray, cv::Mat image);
 
-	void maskWindows(const cv::Mat& inputBGRimage);
-
-	void maskWindowsContour(const cv::Mat& inputBGRimage);
+	void maskContours(const cv::Mat& inputBGRimage);
 
 	void trayDetection(std::string filename);
 };
