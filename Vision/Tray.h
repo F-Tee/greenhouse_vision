@@ -13,5 +13,6 @@ public:
 	void setCoordinates(std::vector<double> coordinates);
 	void printCoordinates();
 	bool getInitialised();
+	void initialiseCells();
 };
 

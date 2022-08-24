@@ -24,7 +24,7 @@ const double cx = 2.49999;
 const double cy = 3.99997;
 const double xDimensionTray = 18.2;
 const double yDimensionTray = 14.2;
-const double cameraHeight = 22.5;
+const double cameraHeight = 41.5;
 
 static Mat imgRed;
 
@@ -45,8 +45,7 @@ std::vector<double> Vision::realPosition(int x, int y) {
 	return coordinates;
 }
 
-void Vision::onMouse(int event, int x, int y, int flags, void* param)
-{
+void Vision::onMouse(int event, int x, int y, int flags, void* param) {
 	if (event != EVENT_LBUTTONDOWN)
 	{
 		return;
@@ -63,6 +62,16 @@ void Vision::onMouse(int event, int x, int y, int flags, void* param)
 	pThis->printCoordinates();
 	return;
 }
+
+void Vision::measureMask(std::string filename) {
+	Mat imageHSV;
+	Mat mask;
+	Mat image = imread(filename, IMREAD_COLOR);
+	Mat input = image.clone();
+	cvtColor(input, imageHSV, COLOR_BGR2HSV);
+	inRange(imageHSV, Scalar(50, 100, 100), Scalar(70, 255, 255), mask);
+}
+
 
 void Vision::maskWindows(const Mat& inputBGRimage) {
 	Mat input = inputBGRimage.clone();
@@ -127,5 +136,6 @@ void Vision::trayDetection(std::string filename) {
 int main()
 {
 	Vision vision;
+	// vision.measureMask("single_tray.jpg");
 	vision.trayDetection("tray_dots.jpg");
 }
