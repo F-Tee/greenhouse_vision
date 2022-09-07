@@ -1,10 +1,11 @@
 #include "Tray.h"
+#include "Cell.h"
 #include <vector>
 #include <iostream>
 
 int xCoordinate;
 int yCoordinate;
-bool initialised = false;
+std::vector<Cell> cells;
 
 Tray::Tray() {
 	xCoordinate = 0;
@@ -14,13 +15,11 @@ Tray::Tray() {
 Tray::Tray(int x, int y) {
 	xCoordinate = x;
 	yCoordinate = y;
-	initialised = true;
 }
 
-void Tray::setCoordinates(std::vector<double> coordinates) {
+void Tray::setCoordinates(std::vector<int> coordinates) {
 	xCoordinate = coordinates.at(0);
 	yCoordinate = coordinates.at(1);
-	initialised = true;
 }
 
 void Tray::printCoordinates() {
@@ -28,8 +27,4 @@ void Tray::printCoordinates() {
 	std::cout << "x: " << xCoordinate << std::endl;
 	std::cout << "y: " << yCoordinate << std::endl;
 	std::cout << std::endl;
-}
-
-bool Tray::getInitialised() {
-	return initialised;
 }

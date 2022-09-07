@@ -9,13 +9,17 @@ private:
 	cv::Mat imgRed;
 
 public:
-	static std::vector<double> realPosition(int x, int y);
+	static void onMouse(int event, int x, int y, int flags, void* param);
 
-	bool compareContourAreas(std::vector<cv::Point> contour1, std::vector<cv::Point> contour2);
+	void calculateCellMeasurements(std::vector<std::vector<cv::Point>> contours);
 
-	void dotDetection(Tray tray, cv::Mat image);
+	static std::vector<int> realPosition(int x, int y);
 
-	void maskContours(const cv::Mat& inputBGRimage);
+	void dotDetection();
+
+	void initialiseTrays(std::vector<std::vector<cv::Point>> contours, std::vector<cv::Vec4i> hierarchy);
+
+	void colourMasks();
 
 	void trayDetection(std::string filename);
 };
