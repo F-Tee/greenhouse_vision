@@ -27,13 +27,24 @@ const double xDimensionTray = 18.2;
 const double yDimensionTray = 14.2;
 const double cameraHeight = 22.5;
 
+const int cellDistanceX = 574;
+const int cellDistanceY = 316;
+
 Mat image;
 Mat imageHSV;
+Mat drawing;
 
 Mat trayImage;
 Tray tray;
 
-std::vector<Cell> cellList;
+std::vector<std::vector<Point>> contours;
+std::vector<Vec4i> hierarchy;
+
+std::vector<Cell> referenceCellList;
+int xAvg;
+int yAvg;
+
+std::vector<Point> dotCentres;
 
 void Vision::onMouse(int event, int x, int y, int flags, void* param) {
 	if (event != EVENT_LBUTTONDOWN)
@@ -52,7 +63,7 @@ void Vision::onMouse(int event, int x, int y, int flags, void* param) {
 	return;
 }
 
-void Vision::calculateCellMeasurements(std::vector<std::vector<Point>> contours) {
+void Vision::cellAverages() {
 	std::vector<std::vector<int>> cellCoordinates;
 	std::vector<int> xCoords;
 	std::vector<int> yCoords;
@@ -62,25 +73,23 @@ void Vision::calculateCellMeasurements(std::vector<std::vector<Point>> contours)
 
 
 	namedWindow("Contours", WINDOW_NORMAL);
-	imshow("Contours", image);
+	imshow("Contours", drawing);
 	resizeWindow("Contours", 1600, 800);
-	setMouseCallback("Contours", onMouse, &cellList);
+	setMouseCallback("Contours", onMouse, &referenceCellList);
 	waitKey(0);
 
 	std::vector<int> xList;
 	std::vector<int> yList;
-	int xAvg;
-	int yAvg;
-	Cell lastCell = cellList[0];
+	Cell lastCell = referenceCellList[0];
 
-	for (int i = 1; i < cellList.size(); i++) {
-		if (cellList[i].getCellCoordinateX() > lastCell.getCellCoordinateX()) {
-			xList.push_back(cellList[i].getCellCoordinateX());
+	for (int i = 0; i < referenceCellList.size(); i++) {
+		if (referenceCellList[i].getCellCoordinateX() > lastCell.getCellCoordinateX()) {
+			xList.push_back(referenceCellList[i].getCellCoordinateX() - lastCell.getCellCoordinateX());
 		}
 		else {
-			yList.push_back(cellList[i].getCellCoordinateY());
+			yList.push_back(referenceCellList[i].getCellCoordinateY() - lastCell.getCellCoordinateY());
 		}
-		lastCell = cellList[i];
+		lastCell = referenceCellList[i];
 	}
 
 	int xSum = 0;
@@ -96,6 +105,14 @@ void Vision::calculateCellMeasurements(std::vector<std::vector<Point>> contours)
 	}
 	yAvg = ySum / yList.size();
 	std::cout << "Y average: " << yAvg << std::endl;
+}
+
+void Vision::drawCellBoxes() {
+	rectangle(drawing, dotCentres[0], dotCentres[1], Scalar(0, 0, 255), 2, 8, 0);
+	namedWindow("Box", WINDOW_NORMAL);
+	imshow("Box", drawing);
+	resizeWindow("Box", 1600, 800);
+	waitKey(0);
 }
 
 std::vector<int> Vision::realPosition(int x, int y) {
@@ -115,51 +132,9 @@ std::vector<int> Vision::realPosition(int x, int y) {
 	return coordinates;
 }
 
-void Vision::dotDetection() {
-	// Canny edge detection
-	Mat cannyOutput;
-	Canny(trayImage, cannyOutput, 50, 150, 3);
-	// Gaussian blur
-	Mat blur;
-	GaussianBlur(cannyOutput, blur, Size(3, 3), 0);
-	// Find contours
-	std::vector<std::vector<Point>> contours;
-	std::vector<Vec4i> hierarchy;
-	findContours(blur, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0));
-	// Sort contours
-	sort(contours.begin(), contours.end(), [](const std::vector<Point>& c1, const std::vector<Point>& c2) {
-		return contourArea(c1, false) < contourArea(c2, false);
-		});
-	Mat drawing(blur.size(), CV_8UC3, Scalar(255, 255, 255));
-
-	// Initialise trays
-	initialiseTrays(contours, hierarchy);
-}
-
-void Vision::initialiseTrays(std::vector<std::vector<Point>> contours, std::vector<Vec4i> hierarchy) {
-	Mat drawing = image.clone();
+void Vision::initialiseTrays() {
 	Point start;
 	Point end;
-	std::vector<Point> points;
-	// Draw largest contour and centre circle
-	if (contours.size() < 1) {
-		std::cout << "First dot not detected" << std::endl;
-		return;
-	}
-	// Maximum and minimum x and y coordinates
-	for (int i = contours.size() - 1; i != contours.size() - 20; i--) {
-		drawContours(drawing, contours, (i), Scalar(0, 0, 255), 2, 8, hierarchy, 0, Point());
-		Moments m = moments(contours[i], true);
-		Point p(m.m10 / m.m00, m.m01 / m.m00);
-		points.push_back(p);
-		circle(drawing, p, 5, Scalar(0, 0, 255), -1);
-		std::cout << "x: " << p.x << std::endl;
-		std::cout << "y: " << p.y << std::endl;
-		std::cout << std::endl;
-	}
-
-	Rect rectangle = cv::boundingRect(points);
-	cv::rectangle(drawing, rectangle.tl(), rectangle.br(), Scalar(0, 140, 255), 10, 8);
 
 	// Create tray object and add to trays vector
 	Moments m = moments(contours[contours.size() - 1], true);
@@ -172,10 +147,9 @@ void Vision::initialiseTrays(std::vector<std::vector<Point>> contours, std::vect
 	imshow("Contours", drawing);
 	resizeWindow("Contours", 1600, 800);
 	waitKey(0);
-	calculateCellMeasurements(contours);
 }
 
-void Vision::colourMasks() {
+void Vision::colourMask() {
 	assert(!image.empty());
 
 	// Converts image from BGR to HSV
@@ -183,18 +157,62 @@ void Vision::colourMasks() {
 
 	// Detects yellow colour
 	inRange(imageHSV, Scalar(20, 100, 100), Scalar(30, 255, 255), trayImage);
-	dotDetection();
+}
+
+void Vision::contourDetection() {
+	// Canny edge detection
+	Mat cannyOutput;
+	Canny(trayImage, cannyOutput, 50, 150, 3);
+	// Gaussian blur
+	Mat blur;
+	GaussianBlur(cannyOutput, blur, Size(3, 3), 0);
+	// Find contours
+	findContours(blur, contours, hierarchy, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE, Point(0, 0));
+	// Sort contours
+	sort(contours.begin(), contours.end(), [](const std::vector<Point>& c1, const std::vector<Point>& c2) {
+		return contourArea(c1, false) < contourArea(c2, false);
+		});
+}
+
+void Vision::drawContourCentres() {
+	// Draw largest contour and centre circle
+	if (contours.size() < 1) {
+		std::cout << "First dot not detected" << std::endl;
+		return;
+	}
+	std::cout << "Number of contours: " << contours.size() << std::endl;
+	// Maximum and minimum x and y coordinates
+	for (int i = 0; i < 2; i++) {
+		std::cout << "Contour drawn" << std::endl;
+		drawContours(drawing, contours, (i), Scalar(0, 0, 255), 2, 8, hierarchy, 0, Point());
+		Moments m = moments(contours[i], true);
+		Point p(m.m10 / m.m00, m.m01 / m.m00);
+		dotCentres.push_back(p);
+		circle(drawing, p, 5, Scalar(0, 0, 255), -1);
+	}
 }
 
 void Vision::trayDetection(std::string filename) {
 	image = imread(filename, IMREAD_COLOR);
+	drawing = image.clone();
 
-	colourMasks();
+	colourMask(); // Converts image to hsv and adds yellow mask
+	contourDetection(); // Finds contours
+}
 
+void Vision::calculateCellMeasurements(std::string filename) {
+	image = imread(filename, IMREAD_COLOR);
+	drawing = image.clone();
+
+	colourMask(); // Converts image to hsv and adds yellow mask
+	contourDetection(); // Finds contours
+	drawContourCentres(); // Draws contour centres
+	cellAverages(); // Calculates cell measurement averages
+	drawCellBoxes(); // Draws boxes around cells
 }
 
 int main()
 {
 	Vision vision;
-	vision.trayDetection("multiple_dots.jpg");
+	vision.calculateCellMeasurements("two_dots.png");
 }

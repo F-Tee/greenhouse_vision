@@ -11,15 +11,21 @@ private:
 public:
 	static void onMouse(int event, int x, int y, int flags, void* param);
 
-	void calculateCellMeasurements(std::vector<std::vector<cv::Point>> contours);
+	void drawCellBoxes();
+
+	void drawContourCentres();
+
+	void cellAverages();
+
+	void calculateCellMeasurements(std::string filename);
 
 	static std::vector<int> realPosition(int x, int y);
 
-	void dotDetection();
+	void contourDetection();
 
-	void initialiseTrays(std::vector<std::vector<cv::Point>> contours, std::vector<cv::Vec4i> hierarchy);
+	void initialiseTrays();
 
-	void colourMasks();
+	void colourMask();
 
 	void trayDetection(std::string filename);
 };
