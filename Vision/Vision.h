@@ -11,13 +11,11 @@ private:
 public:
 	static void onMouse(int event, int x, int y, int flags, void* param);
 
-	void drawCellBoxes();
-
 	void drawContourCentres();
 
 	void cellAverages();
 
-	void calculateCellMeasurements(std::string filename);
+	void calculateCellMeasurements(std::string filename, int tray, int dots);
 
 	static std::vector<int> realPosition(int x, int y);
 
@@ -27,5 +25,11 @@ public:
 
 	void colourMask();
 
+	void sortDots();
+
 	void trayDetection(std::string filename);
+
+	void initialiseCells(std::string filename, int tray, int dots);
+
+	void drawCells();
 };
