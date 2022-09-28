@@ -52,6 +52,8 @@ std::vector<Point> sortedCentres;
 Point topLeft;
 Point bottomRight;
 
+std::vector<Cell> trayCells;
+
 void Vision::onMouse(int event, int x, int y, int flags, void* param) {
 	if (event != EVENT_LBUTTONDOWN)
 	{
@@ -203,25 +205,27 @@ void Vision::sortDots() {
 }
 
 void Vision::drawCells() {
-	std::vector<Point> cells;
-	int cellLocationX = topLeft.x;
-	int cellLocationY = topLeft.y;
 	Mat imageCopy = image.clone();
-	for (int i = 0; i < traySize - 1; i++) {
-		if (i % 5 == 0 && i != 0) {
-			std::cout << "End of row" << std::endl;
-			cellLocationX = topLeft.x;
-			cellLocationY += cellDistanceY;
+	std::vector<Point> cellCorners;
+	int trayWidth = bottomRight.x - topLeft.x;
+	std::cout << "Tray width: " << trayWidth << std::endl;
+	int trayHeight = bottomRight.y - topLeft.y;
+	std::cout << "Tray height: " << trayHeight << std::endl;
+	for (int i = 0; i < 4; i++) {
+		int cellY = topLeft.y + (trayHeight / 3 * i);
+		for (int j = 0; j < 5; j++) {
+			int cellX = topLeft.x + (trayWidth / 4 * j);
+			cellCorners.push_back(Point(cellX, cellY));
+			if (i != 3 && j != 4) {
+				trayCells.push_back(Cell(cellX, cellY));
+			}
 		}
-		else if (i != 0) {
-			cellLocationX += cellDistanceX;
-			std::cout << "Increased x" << std::endl;
-		}
-		std::cout << "x: " << cellLocationX << " y: " << cellLocationY << std::endl;
-		cells.push_back(Point(cellLocationX, cellLocationY));
 	}
 	for (int i = 0; i < traySize - 7; i++) {
-		rectangle(imageCopy, cells[i], cells[i + 6], Scalar(0, 0, 255), 6, 8, 0);
+		rectangle(imageCopy, cellCorners[i], cellCorners[i + 6], Scalar(0, 0, 255), 6, 8, 0);
+	}
+	for (int i = 0; i < trayCells.size(); i++) {
+		circle(imageCopy, Point(trayCells[i].getCellCoordinateX(), trayCells[i].getCellCoordinateY()), 12, Scalar(255, 0, 0), -1);
 	}
 	namedWindow("Cells", WINDOW_NORMAL);
 	imshow("Cells", imageCopy);
