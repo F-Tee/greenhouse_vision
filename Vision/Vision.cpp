@@ -32,13 +32,14 @@ const int cellDistanceY = 574;
 
 int traySize;
 int dotNumber;
+int numberOfTrays;
 
 Mat image;
 Mat imageHSV;
 Mat drawing;
 
 Mat trayImage;
-Tray tray;
+std::vector<Tray> trays;
 
 std::vector<std::vector<Point>> contours;
 std::vector<Vec4i> hierarchy;
@@ -49,10 +50,12 @@ int yAvg;
 
 std::vector<Point> dotCentres;
 std::vector<Point> sortedCentres;
-Point topLeft;
-Point bottomRight;
 
 std::vector<Cell> trayCells;
+
+Vision::Vision(int trayQuantity) {
+	numberOfTrays = trayQuantity;
+}
 
 void Vision::onMouse(int event, int x, int y, int flags, void* param) {
 	if (event != EVENT_LBUTTONDOWN)
@@ -133,20 +136,22 @@ std::vector<int> Vision::realPosition(int x, int y) {
 }
 
 void Vision::initialiseTrays() {
-	Point start;
-	Point end;
-
-	// Create tray object and add to trays vector
-	Moments m = moments(contours[contours.size() - 1], true);
-	Point p(m.m10 / m.m00, m.m01 / m.m00);
-	std::vector<int> coordinates = realPosition(p.x, p.y);
-	tray.setCoordinates(coordinates);
-	tray.printCoordinates();
-	// Show the image
-	namedWindow("Contours", WINDOW_NORMAL);
-	imshow("Contours", drawing);
-	resizeWindow("Contours", 1600, 800);
-	waitKey(0);
+	// Loop through number of trays * dots (2 per tray)
+	// Each two dots change tray
+	// Add tray to trays vector witth top left dot (lower value centroid) 
+	// as cell coordinate 
+	// Change this to add all four corners?
+	std::cout << "dotCentres size: " << dotCentres.size() << std::endl;
+	std::vector<int> previousCoordinates;
+	for (int i = 0; i < dotCentres.size(); i++) {
+		std::vector<int> coordinates = { dotCentres[i].x, dotCentres[i].y };
+		if (i % 2 != 0) {
+			trays.push_back(Tray(coordinates[0], coordinates[1], previousCoordinates[0], previousCoordinates[1]));
+		}
+		else {
+			previousCoordinates = coordinates;
+		}
+	}
 }
 
 void Vision::colourMask() {
@@ -191,41 +196,40 @@ void Vision::drawContourCentres() {
 }
 
 void Vision::sortDots() {
-	std::vector<Point> sortedPoints;
-	sortedPoints = dotCentres;
-	std::sort(sortedPoints.begin(), sortedPoints.end(), [](Point a, Point b) {
-		return a.x < b.x;
+	std::sort(dotCentres.begin(), dotCentres.end(), [](Point a, Point b) {
+		return a.x > b.x;
 		});
-	topLeft = sortedPoints[0];
-	bottomRight = sortedPoints[1];
-	std::cout << "topLeft x: " << topLeft.x << std::endl;
-	std::cout << "topLeft y: " << topLeft.y << std::endl;
-	std::cout << "bottomRight x: " << bottomRight.x << std::endl;
-	std::cout << "bottomRight y: " << bottomRight.y << std::endl;
 }
 
 void Vision::drawCells() {
 	Mat imageCopy = image.clone();
-	std::vector<Point> cellCorners;
-	int trayWidth = bottomRight.x - topLeft.x;
-	std::cout << "Tray width: " << trayWidth << std::endl;
-	int trayHeight = bottomRight.y - topLeft.y;
-	std::cout << "Tray height: " << trayHeight << std::endl;
-	for (int i = 0; i < 4; i++) {
-		int cellY = topLeft.y + (trayHeight / 3 * i);
-		for (int j = 0; j < 5; j++) {
-			int cellX = topLeft.x + (trayWidth / 4 * j);
-			cellCorners.push_back(Point(cellX, cellY));
-			if (i != 3 && j != 4) {
-				trayCells.push_back(Cell(cellX, cellY));
+	for (int i = 0; i < trays.size(); i++) {
+		std::vector<Point> trayCorners = trays[i].getCorners();
+		std::vector<Point> cellCorners;
+		std::cout << "Top left corner x: " << trayCorners[0].x << std::endl;
+		std::cout << "Top left corner y: " << trayCorners[0].y << std::endl;
+		std::cout << "Bottom right corner x: " << trayCorners[1].x << std::endl;
+		std::cout << "Bottom right corner y: " << trayCorners[1].y << std::endl;
+		int trayWidth = trayCorners[1].x - trayCorners[0].x;
+		std::cout << "Tray width: " << trayWidth << std::endl;
+		int trayHeight = trayCorners[1].y - trayCorners[0].y;
+		std::cout << "Tray height: " << trayHeight << std::endl;
+		for (int i = 0; i < 4; i++) {
+			int cellY = trayCorners[0].y + (trayHeight / 3 * i);
+			for (int j = 0; j < 5; j++) {
+				int cellX = trayCorners[0].x + (trayWidth / 4 * j);
+				cellCorners.push_back(Point(cellX, cellY));
+				if (i != 3 && j != 4) {
+					trayCells.push_back(Cell(cellX, cellY));
+				}
 			}
 		}
-	}
-	for (int i = 0; i < traySize - 7; i++) {
-		rectangle(imageCopy, cellCorners[i], cellCorners[i + 6], Scalar(0, 0, 255), 6, 8, 0);
-	}
-	for (int i = 0; i < trayCells.size(); i++) {
-		circle(imageCopy, Point(trayCells[i].getCellCoordinateX(), trayCells[i].getCellCoordinateY()), 12, Scalar(255, 0, 0), -1);
+		for (int i = 0; i < traySize - 7; i++) {
+			rectangle(imageCopy, cellCorners[i], cellCorners[i + 6], Scalar(0, 0, 255), 6, 8, 0);
+		}
+		for (int i = 0; i < trayCells.size(); i++) {
+			circle(imageCopy, Point(trayCells[i].getCellCoordinateX(), trayCells[i].getCellCoordinateY()), 12, Scalar(255, 0, 0), -1);
+		}
 	}
 	namedWindow("Cells", WINDOW_NORMAL);
 	imshow("Cells", imageCopy);
@@ -263,11 +267,12 @@ void Vision::initialiseCells(std::string filename, int tray, int dots) {
 	contourDetection(); // Finds contours
 	drawContourCentres(); // Draws contour centres
 	sortDots();
+	initialiseTrays();
 	drawCells();
 }
 
 int main()
 {
-	Vision vision;
-	vision.initialiseCells("two_dots.jpg", 20, 2);
+	Vision vision(3);
+	vision.initialiseCells("three_trays.jpg", 21, 6);
 }

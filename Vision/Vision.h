@@ -9,6 +9,9 @@ private:
 	cv::Mat imgRed;
 
 public:
+
+	Vision(int trayQuantity);
+
 	static void onMouse(int event, int x, int y, int flags, void* param);
 
 	void drawContourCentres();

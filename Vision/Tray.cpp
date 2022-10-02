@@ -3,18 +3,14 @@
 #include <vector>
 #include <iostream>
 
-int xCoordinate;
-int yCoordinate;
 std::vector<Cell> cells;
 
-Tray::Tray() {
-	xCoordinate = 0;
-	yCoordinate = 0;
-}
+cv::Point topLeftCorner;
+cv::Point bottomRightCorner;
 
-Tray::Tray(int x, int y) {
-	xCoordinate = x;
-	yCoordinate = y;
+Tray::Tray(int x1, int y1, int x2, int y2) {
+	topLeftCorner = cv::Point(x1, y1);
+	bottomRightCorner = cv::Point(x2, y2);
 }
 
 void Tray::setCoordinates(std::vector<int> coordinates) {
@@ -27,4 +23,9 @@ void Tray::printCoordinates() {
 	std::cout << "x: " << xCoordinate << std::endl;
 	std::cout << "y: " << yCoordinate << std::endl;
 	std::cout << std::endl;
+}
+
+std::vector<cv::Point> Tray::getCorners() {
+	std::vector<cv::Point> corners = { topLeftCorner, bottomRightCorner };
+	return corners;
 }
