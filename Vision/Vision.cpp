@@ -30,8 +30,6 @@ const double cameraHeight = 22.5;
 const int cellDistanceX = 574;
 const int cellDistanceY = 574;
 
-int traySize;
-int dotNumber;
 int numberOfTrays;
 
 Mat image;
@@ -186,7 +184,7 @@ void Vision::drawContourCentres() {
 		return;
 	}
 	// Maximum and minimum x and y coordinates
-	for (int i = 0; i < dotNumber; i++) {
+	for (int i = 0; i < (numberOfTrays * 2); i++) {
 		drawContours(drawing, contours, (i), Scalar(0, 0, 255), 2, 8, hierarchy, 0, Point());
 		Moments m = moments(contours[i], true);
 		Point p(m.m10 / m.m00, m.m01 / m.m00);
@@ -224,7 +222,7 @@ void Vision::drawCells() {
 				}
 			}
 		}
-		for (int i = 0; i < traySize - 7; i++) {
+		for (int i = 0; i < 13; i++) {
 			rectangle(imageCopy, cellCorners[i], cellCorners[i + 6], Scalar(0, 0, 255), 6, 8, 0);
 		}
 		for (int i = 0; i < trayCells.size(); i++) {
@@ -245,11 +243,9 @@ void Vision::trayDetection(std::string filename) {
 	contourDetection(); // Finds contours
 }
 
-void Vision::calculateCellMeasurements(std::string filename, int tray, int dots) {
+void Vision::calculateCellMeasurements(std::string filename) {
 	image = imread(filename, IMREAD_COLOR);
 	drawing = image.clone();
-	traySize = tray;
-	dotNumber = dots;
 
 	colourMask(); // Converts image to hsv and adds yellow mask
 	contourDetection(); // Finds contours
@@ -257,11 +253,9 @@ void Vision::calculateCellMeasurements(std::string filename, int tray, int dots)
 	cellAverages(); // Calculates cell measurement averages
 }
 
-void Vision::initialiseCells(std::string filename, int tray, int dots) {
+void Vision::initialiseCells(std::string filename) {
 	image = imread(filename, IMREAD_COLOR);
 	drawing = image.clone();
-	traySize = tray;
-	dotNumber = dots;
 
 	colourMask(); // Converts image to hsv and adds yellow mask
 	contourDetection(); // Finds contours
@@ -274,5 +268,5 @@ void Vision::initialiseCells(std::string filename, int tray, int dots) {
 int main()
 {
 	Vision vision(3);
-	vision.initialiseCells("three_trays.jpg", 21, 6);
+	vision.initialiseCells("three_trays.jpg");
 }

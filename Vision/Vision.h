@@ -18,7 +18,7 @@ public:
 
 	void cellAverages();
 
-	void calculateCellMeasurements(std::string filename, int tray, int dots);
+	void calculateCellMeasurements(std::string filename);
 
 	static std::vector<int> realPosition(int x, int y);
 
@@ -32,7 +32,7 @@ public:
 
 	void trayDetection(std::string filename);
 
-	void initialiseCells(std::string filename, int tray, int dots);
+	void initialiseCells(std::string filename);
 
 	void drawCells();
 };
