@@ -1,13 +1,14 @@
 #include "Vision.h"
 #include "Cell.h"
 #include "Tray.h"
+#include "Coordinates.h"
 #include <opencv2/opencv.hpp>
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/imgproc.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/calib3d.hpp"
 #include "opencv2/aruco.hpp"
-
+#include <armadillo.hpp>
 
 #include <iostream>
 #include <sstream>
@@ -19,17 +20,10 @@ using namespace cv;
 
 const int fps = 20;
 
-const double fx = 276.558;
-const double fy = 1439.6;
-const double cx = 2.49999;
-const double cy = 3.99997;
-const double xDimensionTray = 18.2;
-const double yDimensionTray = 14.2;
-const double cameraHeight = 22.5;
-
 const int cellDistanceX = 574;
 const int cellDistanceY = 574;
 
+int pixelTrayWidth;
 int numberOfTrays;
 
 Mat image;
@@ -77,9 +71,6 @@ void Vision::cellAverages() {
 	std::vector<int> xCoords;
 	std::vector<int> yCoords;
 	std::vector<Point> points;
-	double cellWidth;
-	double cellHeight;
-
 
 	namedWindow("Contours", WINDOW_NORMAL);
 	imshow("Contours", drawing);
@@ -114,23 +105,6 @@ void Vision::cellAverages() {
 	}
 	yAvg = ySum / yList.size();
 	std::cout << "Y average: " << yAvg << std::endl;
-}
-
-std::vector<int> Vision::realPosition(int x, int y) {
-	double xFov = 2 * (atan(xDimensionTray / (2 * fx)));
-	double yFov = 2 * (atan(yDimensionTray / (2 * fy)));
-	double x2 = x / cameraHeight;
-	double y2 = y / cameraHeight;
-	double u;
-	double v;
-
-	u = fx + x2 + cx;
-	v = fy + y2 + cy;
-
-	std::vector<int> coordinates;
-	coordinates.push_back(u);
-	coordinates.push_back(v);
-	return coordinates;
 }
 
 void Vision::initialiseTrays() {
@@ -208,14 +182,14 @@ void Vision::drawCells() {
 		std::cout << "Top left corner y: " << trayCorners[0].y << std::endl;
 		std::cout << "Bottom right corner x: " << trayCorners[1].x << std::endl;
 		std::cout << "Bottom right corner y: " << trayCorners[1].y << std::endl;
-		int trayWidth = trayCorners[1].x - trayCorners[0].x;
-		std::cout << "Tray width: " << trayWidth << std::endl;
+		pixelTrayWidth = trayCorners[1].x - trayCorners[0].x;
+		std::cout << "Tray width: " << pixelTrayWidth << std::endl;
 		int trayHeight = trayCorners[1].y - trayCorners[0].y;
 		std::cout << "Tray height: " << trayHeight << std::endl;
 		for (int i = 0; i < 4; i++) {
 			int cellY = trayCorners[0].y + (trayHeight / 3 * i);
 			for (int j = 0; j < 5; j++) {
-				int cellX = trayCorners[0].x + (trayWidth / 4 * j);
+				int cellX = trayCorners[0].x + (pixelTrayWidth / 4 * j);
 				cellCorners.push_back(Point(cellX, cellY));
 				if (i != 3 && j != 4) {
 					trayCells.push_back(Cell(cellX, cellY));
@@ -232,6 +206,16 @@ void Vision::drawCells() {
 	namedWindow("Cells", WINDOW_NORMAL);
 	imshow("Cells", imageCopy);
 	resizeWindow("Cells", 1600, 800);
+	waitKey(0);
+}
+
+void drawCentre() {
+	Mat imageCopy = image.clone();
+	Point p(249, 800);
+	circle(imageCopy, p, 12, Scalar(0, 0, 255), -1);
+	namedWindow("Centre", WINDOW_NORMAL);
+	imshow("Centre", imageCopy);
+	resizeWindow("Centre", 1600, 800);
 	waitKey(0);
 }
 
@@ -263,6 +247,7 @@ void Vision::initialiseCells(std::string filename) {
 	sortDots();
 	initialiseTrays();
 	drawCells();
+	drawCentre();
 }
 
 int main()

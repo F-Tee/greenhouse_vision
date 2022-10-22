@@ -20,8 +20,6 @@ public:
 
 	void calculateCellMeasurements(std::string filename);
 
-	static std::vector<int> realPosition(int x, int y);
-
 	void contourDetection();
 
 	void initialiseTrays();

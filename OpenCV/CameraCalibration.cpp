@@ -64,7 +64,7 @@ void createArucoMarkers() {
 	}
 }
 
-void cameraCalibration(std::vector<Mat> calibrationImages, Size boardSize, float squareEdgeLength, Mat& cameraMatrix, Mat& distanceCoefficients) {
+void cameraCalibration(std::vector<Mat> calibrationImages, Size boardSize, float squareEdgeLength, Mat& cameraMatrix, Mat& distortionCoefficients) {
 	std::vector<std::vector<Point2f>> checkerboardImageSpacePoints;
 	getChessboardCorners(calibrationImages, checkerboardImageSpacePoints, false);
 
@@ -74,9 +74,9 @@ void cameraCalibration(std::vector<Mat> calibrationImages, Size boardSize, float
 	worldSpaceCornerPoints.resize(checkerboardImageSpacePoints.size(), worldSpaceCornerPoints[0]);
 
 	std::vector<Mat> rVectors, tVectors;
-	distanceCoefficients = Mat::zeros(8, 1, CV_64F);
+	distortionCoefficients = Mat::zeros(8, 1, CV_64F);
 
-	calibrateCamera(worldSpaceCornerPoints, checkerboardImageSpacePoints, boardSize, cameraMatrix, distanceCoefficients, rVectors, tVectors);
+	calibrateCamera(worldSpaceCornerPoints, checkerboardImageSpacePoints, boardSize, cameraMatrix, distortionCoefficients, rVectors, tVectors);
 }
 
 bool saveCameraCalibration(std::string name, Mat cameraMatrix, Mat distanceCoefficients) {
