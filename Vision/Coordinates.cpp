@@ -11,7 +11,7 @@ std::pair<int, int> Coordinates::realCoordinates(int x, int y) {
 	double xCoord = 0 - co;
 	coordinates.first = xCoord;
 	double boc = y * fy / 1080;
-	double bc = cameraHeight * tan(aoc);
+	double bc = cameraHeight * tan(boc);
 	double yCoord = 0 - bc;
 	coordinates.second = yCoord;
 	return coordinates;

@@ -193,10 +193,10 @@ void Vision::drawCells() {
 				int cellX = trayCorners[0].x + (pixelTrayWidth / 4 * j);
 				cellCorners.push_back(Point(cellX, cellY));
 				if (i != 3 && j != 4) {
-					std::cout << "x: " << cellX << " y: " << cellY;
+					std::cout << "x: " << cellX << " y: " << cellY << std::endl;
 					std::pair<int, int> realCoords = Coordinates::realCoordinates(cellX, cellY);
-					std::cout << "realX: " << realCoords.first << " realY: " << realCoords.second;
-					trayCells.push_back(Cell(realCoords.first, realCoords.second));
+					std::cout << "realX: " << realCoords.first << " realY: " << realCoords.second << std::endl;
+					trayCells.push_back(Cell(cellX, cellY));
 				}
 			}
 		}
