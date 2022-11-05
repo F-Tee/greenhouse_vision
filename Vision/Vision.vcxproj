@@ -133,14 +133,15 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\Coordinates\Coordinates.cpp" />
     <ClCompile Include="Cell.cpp" />
+    <ClCompile Include="Coordinates.cpp" />
     <ClCompile Include="Tray.cpp" />
     <ClCompile Include="Vision.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Coordinates\Coordinates.h" />
     <ClInclude Include="Cell.h" />
+    <ClInclude Include="Class.h" />
+    <ClInclude Include="Coordinates.h" />
     <ClInclude Include="Tray.h" />
     <ClInclude Include="Vision.h" />
   </ItemGroup>

@@ -2,6 +2,7 @@
 #include "Cell.h"
 #include "Tray.h"
 #include "Coordinates.h"
+#include "Coordinates.cpp"
 #include <opencv2/opencv.hpp>
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/imgproc.hpp"
@@ -48,8 +49,6 @@ std::vector<Cell> trayCells;
 Vision::Vision(int trayQuantity) {
 	numberOfTrays = trayQuantity;
 }
-
-Coordinates coordinates;
 
 void Vision::onMouse(int event, int x, int y, int flags, void* param) {
 	if (event != EVENT_LBUTTONDOWN)
@@ -194,8 +193,10 @@ void Vision::drawCells() {
 				int cellX = trayCorners[0].x + (pixelTrayWidth / 4 * j);
 				cellCorners.push_back(Point(cellX, cellY));
 				if (i != 3 && j != 4) {
-					int xRealCoord = coordinates.realCoordinates(xRealCoord);
-					trayCells.push_back(Cell(cellX, cellY));
+					std::cout << "x: " << cellX << " y: " << cellY;
+					std::pair<int, int> realCoords = Coordinates::realCoordinates(cellX, cellY);
+					std::cout << "realX: " << realCoords.first << " realY: " << realCoords.second;
+					trayCells.push_back(Cell(realCoords.first, realCoords.second));
 				}
 			}
 		}
