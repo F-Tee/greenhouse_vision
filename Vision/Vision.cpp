@@ -49,6 +49,8 @@ Vision::Vision(int trayQuantity) {
 	numberOfTrays = trayQuantity;
 }
 
+Coordinates coordinates;
+
 void Vision::onMouse(int event, int x, int y, int flags, void* param) {
 	if (event != EVENT_LBUTTONDOWN)
 	{
@@ -116,12 +118,12 @@ void Vision::initialiseTrays() {
 	std::cout << "dotCentres size: " << dotCentres.size() << std::endl;
 	std::vector<int> previousCoordinates;
 	for (int i = 0; i < dotCentres.size(); i++) {
-		std::vector<int> coordinates = { dotCentres[i].x, dotCentres[i].y };
+		std::vector<int> dotCoords = { dotCentres[i].x, dotCentres[i].y };
 		if (i % 2 != 0) {
-			trays.push_back(Tray(coordinates[0], coordinates[1], previousCoordinates[0], previousCoordinates[1]));
+			trays.push_back(Tray(dotCoords[0], dotCoords[1], previousCoordinates[0], previousCoordinates[1]));
 		}
 		else {
-			previousCoordinates = coordinates;
+			previousCoordinates = dotCoords;
 		}
 	}
 }
@@ -192,6 +194,7 @@ void Vision::drawCells() {
 				int cellX = trayCorners[0].x + (pixelTrayWidth / 4 * j);
 				cellCorners.push_back(Point(cellX, cellY));
 				if (i != 3 && j != 4) {
+					int xRealCoord = coordinates.realCoordinates(xRealCoord);
 					trayCells.push_back(Cell(cellX, cellY));
 				}
 			}

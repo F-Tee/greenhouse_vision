@@ -14,13 +14,7 @@ private:
 public:
 	Coordinates();
 
-	std::vector<int> realPosition(int x, int y);
-
-	std::vector<int> realCoordinates(int x, int y);
-
 	void calculateDistance(int pixelTrayWidth);
 
-	void calculateTranslation();
-
-	void calculatePositionAngle(int x = 960, int y = 540);
+	double realCoordinates(int coordinate);
 };

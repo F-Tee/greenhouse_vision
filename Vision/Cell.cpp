@@ -5,15 +5,15 @@
 int xCellCoordinate;
 int yCellCoordinate;
 
-Cell::Cell(int x, int y) {
+Cell::Cell(double x, double y) {
 	xCellCoordinate = x;
 	yCellCoordinate = y;
 }
 
-int Cell::getCellCoordinateX() {
+double Cell::getCellCoordinateX() {
 	return xCellCoordinate;
 }
 
-int Cell::getCellCoordinateY() {
+double Cell::getCellCoordinateY() {
 	return yCellCoordinate;
 }

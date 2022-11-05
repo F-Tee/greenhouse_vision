@@ -5,10 +5,10 @@ private:
 	int xCellCoordinate;
 	int yCellCoordinate;
 public:
-	Cell(int x, int y);
+	Cell(double x, double y);
 
-	int getCellCoordinateX();
+	double getCellCoordinateX();
 
-	int getCellCoordinateY();
+	double getCellCoordinateY();
 };
 
