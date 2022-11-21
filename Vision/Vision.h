@@ -33,4 +33,6 @@ public:
 	void initialiseCells(std::string filename);
 
 	void drawCells();
+
+	double euclidian_distance_test(std::vector<cv::Point> vector);
 };

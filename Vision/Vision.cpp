@@ -111,20 +111,27 @@ void Vision::cellAverages() {
 void Vision::initialiseTrays() {
 	// Loop through number of trays * dots (2 per tray)
 	// Each two dots change tray
-	// Add tray to trays vector witth top left dot (lower value centroid) 
+	// Add tray to trays vector with top left dot (lower value centroid) 
 	// as cell coordinate 
 	// Change this to add all four corners?
 	std::cout << "dotCentres size: " << dotCentres.size() << std::endl;
 	std::vector<int> previousCoordinates;
+	std::vector<Point> euclid;
 	for (int i = 0; i < dotCentres.size(); i++) {
 		std::vector<int> dotCoords = { dotCentres[i].x, dotCentres[i].y };
 		if (i % 2 != 0) {
+			Point point = Point(dotCoords[0], dotCoords[1]);
 			trays.push_back(Tray(dotCoords[0], dotCoords[1], previousCoordinates[0], previousCoordinates[1]));
+			std::cout << "Point created" << std::endl;
+			euclid.push_back(point);
+			std::cout << "Point pushed" << std::endl;
 		}
 		else {
 			previousCoordinates = dotCoords;
 		}
 	}
+	std::cout << "Beginning euclidian distance test" << std::endl;
+	euclidian_distance_test(euclid);
 }
 
 void Vision::colourMask() {
@@ -211,6 +218,29 @@ void Vision::drawCells() {
 	imshow("Cells", imageCopy);
 	resizeWindow("Cells", 1600, 800);
 	waitKey(0);
+}
+
+double Vision::euclidian_distance_test(std::vector<cv::Point> vector) {
+	std::cout << "Euclidian distance started" << std::endl;
+	int x1 = 0;
+	int x2 = 0;
+	int y1 = 0;
+	int y2 = 0;
+	std::cout << vector.size() << std::endl;
+	x1 = vector[0].x;
+	y1 = vector[0].y;
+	x2 = vector[1].x;
+	y2 = vector[1].y;
+	std::pair<int, int> pair1 = Coordinates::realCoordinates(x1, y1);
+	x1 = pair1.first;
+	y1 = pair1.second;
+	std::pair<int, int> pair2 = Coordinates::realCoordinates(x2, y2);
+	x2 = pair2.first;
+	y2 = pair2.second;
+	double sum = pow((x2 - x1), 2) + pow((y2 - y1), 2);
+	double result = sqrt(sum);
+	std::cout << "Euclidian distance: " << result << std::endl;
+	return result;
 }
 
 void drawCentre() {
