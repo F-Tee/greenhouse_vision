@@ -1,14 +1,20 @@
 #include "Cell.h"
 
-double xPosition;
-double yPosiiton;
+#include <vector>
+#include <iostream>
 
-Cell::Cell() {
-	xPosition = 0;
-	yPosiiton = 0;
-}
+int xCellCoordinate;
+int yCellCoordinate;
 
 Cell::Cell(double x, double y) {
-	xPosition = x;
-	yPosiiton = y;
+	xCellCoordinate = x;
+	yCellCoordinate = y;
+}
+
+double Cell::getCellCoordinateX() {
+	return xCellCoordinate;
+}
+
+double Cell::getCellCoordinateY() {
+	return yCellCoordinate;
 }

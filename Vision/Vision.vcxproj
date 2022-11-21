@@ -108,6 +108,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\Josh\Downloads\armadillo-11.4.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,6 +123,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>C:\Users\Josh\Downloads\armadillo-11.4.2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,11 +134,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Cell.cpp" />
+    <ClCompile Include="Coordinates.cpp" />
     <ClCompile Include="Tray.cpp" />
     <ClCompile Include="Vision.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cell.h" />
+    <ClInclude Include="Class.h" />
+    <ClInclude Include="Coordinates.h" />
     <ClInclude Include="Tray.h" />
     <ClInclude Include="Vision.h" />
   </ItemGroup>

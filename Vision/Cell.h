@@ -2,10 +2,13 @@
 class Cell
 {
 private:
-	double xPosition;
-	double yPosiiton;
+	int xCellCoordinate;
+	int yCellCoordinate;
 public:
-	Cell();
 	Cell(double x, double y);
+
+	double getCellCoordinateX();
+
+	double getCellCoordinateY();
 };
 
