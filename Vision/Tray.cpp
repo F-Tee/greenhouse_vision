@@ -2,6 +2,7 @@
 #include "Cell.h"
 #include <vector>
 #include <iostream>
+#include "Cell.h"
 
 std::vector<Cell> cells;
 

@@ -5,9 +5,7 @@
 class Vision {
 private:
 	const int fps = 20;
-
 	cv::Mat imgRed;
-
 public:
 
 	Vision(int trayQuantity);

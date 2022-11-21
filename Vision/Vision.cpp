@@ -72,7 +72,7 @@ void Vision::cellAverages() {
 	std::vector<int> xCoords;
 	std::vector<int> yCoords;
 	std::vector<Point> points;
-
+  
 	namedWindow("Contours", WINDOW_NORMAL);
 	imshow("Contours", drawing);
 	resizeWindow("Contours", 1600, 800);
