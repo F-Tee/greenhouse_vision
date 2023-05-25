@@ -292,6 +292,10 @@ void Vision::initialiseCells(std::string filename) {
 
 int main()
 {
-	Vision vision(3);
-	vision.initialiseCells("three_trays.jpg");
+	int input;
+	std::cout << "Enter number of trays: " << std::endl;
+	std::cin >> input;
+	std::cout << "Number of trays: " << input << std::endl;
+	Vision vision(input);
+	vision.initialiseCells("two_dots.jpg");
 }
