@@ -213,7 +213,6 @@ void Vision::drawCells() {
 			rectangle(imageCopy, cellCorners[i], cellCorners[i + 6], Scalar(0, 0, 255), 6, 8, 0);
 		}
 	}
-	std::cout << "Size: " << trayCells.size() << std::endl;
 	for (int i = 0; i < trayCells.size(); i++) {
 		circle(imageCopy, Point(trayCells[i].getCellCoordinateX(), trayCells[i].getCellCoordinateY()), 12, Scalar(255, 0, 0), -1);
 		if (cellCount == 13) {
